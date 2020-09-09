@@ -565,6 +565,7 @@ func startStateSync(ssR *statesync.Reactor, bcR fastSyncReactor, conR *cs.Reacto
 	if stateProvider == nil {
 		var err error
 		stateProvider, err = statesync.NewLightClientStateProvider(
+			context.Background(), // TODO: timeout?
 			state.ChainID, state.Version, state.InitialHeight,
 			config.RPCServers, light.TrustOptions{
 				Period: config.TrustPeriod,
