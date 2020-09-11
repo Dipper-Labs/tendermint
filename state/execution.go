@@ -303,9 +303,29 @@ func execBlockOnProxyApp(
 		return nil, err
 	}
 
+	if msg, ok := getUpgradeFailureEvent(abciResponses.EndBlock.Events); ok {
+		return nil, fmt.Errorf(msg)
+	}
+
 	logger.Info("Executed block", "height", block.Height, "validTxs", validTxs, "invalidTxs", invalidTxs)
 
 	return abciResponses, nil
+}
+
+func getUpgradeFailureEvent(events []abci.Event) (msg string, exist bool) {
+	exist = false
+
+	for _, e := range events {
+		if e.Type == abci.UpgradeFailureEvent {
+			exist = true
+			if len(e.Attributes) > 0 {
+				msg = string(e.Attributes[0].Value)
+			}
+			break
+		}
+	}
+
+	return
 }
 
 func getBeginBlockValidatorInfo(block *types.Block, stateDB dbm.DB) (abci.LastCommitInfo, []abci.Evidence) {

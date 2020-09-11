@@ -265,6 +265,12 @@ func (h *Handshaker) Handshake(proxyApp proxy.AppConns) error {
 		sm.SaveState(h.stateDB, h.initialState)
 	}
 
+	////////////////////  Dipper-Labs/tendermint begin  ///////////////////////////
+	state := sm.LoadState(h.stateDB)
+	state.Version.Consensus.App = version.Protocol(res.AppVersion)
+	sm.SaveState(h.stateDB, state)
+	////////////////////  Dipper-Labs/tendermint end  ///////////////////////////
+
 	// Replay blocks up to the latest in the blockstore.
 	_, err = h.ReplayBlocks(h.initialState, appHash, blockHeight, proxyApp)
 	if err != nil {
